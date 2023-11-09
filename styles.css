@@ -53,6 +53,14 @@ body {
     box-sizing: border-box;
 }
 
+.main-container {
+	display: grid;
+	grid-template-columns: 1fr;
+	grid-template-rows: 1fr;
+	justify-items: center;
+	padding-top: 20vh;
+}
+
 .board-container {
     border: 2px solid blue;
     display: grid;
