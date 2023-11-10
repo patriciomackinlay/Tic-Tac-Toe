@@ -56,19 +56,62 @@ function createPlayer (name, marker) {
 }
 
 const displayController = (function () {
-    const currentBoard = document.querySelector(".board-container");
-    const allCells = document.querySelectorAll(".cell");
 
-    const getAllCells = () => allCells;
+    const mainContainer = document.querySelector(".main-container");
+    const currentBoard = document.querySelector(".board-container");
+    const resetButton = document.querySelector(".reset-button");
+    resetButton.addEventListener("click", () => {
+        gameFlow.reset();
+    });
 
     const showCurrentBoard = () => console.log(gameboard.getBoard());
 
-    const renderBoard = (player) => {
+    const renderBoard = () => {
         const board = gameboard.getBoard();
         clearBoard();
         createBoard(board, currentBoard);
     }
-    
+
+    function createBoard(board, boardContainer) {
+        let turn = true;
+        let cellIndex = 0;
+        board.forEach(element => {
+            const cell = document.createElement("div");
+            cell.classList.add("cell"); 
+            cell.setAttribute("id", cellIndex);
+            cell.textContent = board[cellIndex];
+            boardContainer.appendChild(cell);
+            cellIndex++;
+            cell.addEventListener("click", () => {
+                if(turn === true && gameOver === false) {
+                    fillCell(cell, "X");
+                } else if (turn === false && gameOver === false) {
+                    fillCell(cell, "O");
+                }
+                console.log(turn);
+                if (gameboard.checkBoardForWin("X")){
+                    displayResult("Game Over! Player X wins!");
+                    gameOver = true;
+                } else if (gameboard.checkBoardForWin("O")){
+                    displayResult("Game Over! Player O wins!");
+                    gameOver = true;
+                } else {
+                    if (gameboard.checkBoardForTie()) {
+                        displayResult("Game Over! It's a tie!");
+                        gameOver = true;
+                    }
+                }
+                turn = !turn;
+            });
+        }
+    )};
+
+    function clearBoard() {
+        while (currentBoard.hasChildNodes()) {
+            currentBoard.removeChild(currentBoard.firstChild);
+        }
+    }
+
     function fillCell(cell, marker) {
         const cellNumber = cell.id;
         if (gameboard.getBoard()[cellNumber] !== "") {
@@ -79,43 +122,30 @@ const displayController = (function () {
         }
     }
 
-    function createBoard(board, boardContainer) {
-        let cellIndex = 0;
-        board.forEach(element => {
-            const cell = document.createElement("div");
-            cell.classList.add("cell"); 
-            cell.setAttribute("id", cellIndex);
-            cell.textContent = board[cellIndex];
-            boardContainer.appendChild(cell);
-            cellIndex++;
-            cell.addEventListener("click", (e) => {
-                if(turn === true) {
-                    fillCell(cell, "X");
-                } else {
-                    fillCell(cell, "O");
-                }
-                console.log(turn);
-                turn = !turn;
-                if (gameboard.checkBoardForWin("X")){
-                    alert("Game Over! Player 1 wins!");
-                    gameOver = true;
-                }
-                if (gameboard.checkBoardForTie()) {
-                    alert("Game Over! It's a tie!");
-                    gameOver = true;
-                }
+    function displayResult(result) {
+        const resultsDialog = document.querySelector("dialog");
+        const closeResultButton = document.querySelector(".close-button");
+        const playAgainButton = document.querySelector(".play-again-button")
+        const roundResults = document.createElement("p");
+        roundResults.classList.add("result-text");
+        roundResults.textContent = result;
+        resultsDialog.appendChild(roundResults);
+        resultsDialog.showModal();
+
+        closeResultButton.addEventListener("click", () => {
+            resultsDialog.removeChild(roundResults);
+            resultsDialog.close();
+            
         })
-        }
-    )};
 
-    function clearBoard() {
-        while (currentBoard.hasChildNodes()) {
-            currentBoard.removeChild(currentBoard.firstChild);
-        }
+        playAgainButton.addEventListener("click", () => {
+            resultsDialog.removeChild(roundResults);
+            gameFlow.reset();
+            resultsDialog.close();
+        });
     }
-
     
-    return {showCurrentBoard, renderBoard}
+    return {showCurrentBoard, renderBoard, clearBoard}
 })();
 
 const gameFlow = (function() {
@@ -125,18 +155,25 @@ const gameFlow = (function() {
     }
 
     function playRound(player1, player2) {
-        playerTurn(player1)
-        let gameOver = false;
+        playerTurn(player1);
     }
 
+    function reset() {
+        displayController.clearBoard();
+        gameboard.resetBoard();
+        gameOver = false;
+        newGame();
+    }
 
-    return {playRound};
+    function newGame () {
+        const player1 = createPlayer("Player 1", "X");
+        const player2 = createPlayer("Player 2", "O");
+        playRound(player1, player2);
+    }
+
+    return {playRound, reset, newGame};
 })();
 
-function newGame () {
-    const player1 = createPlayer("Player 1", "X");
-    const player2 = createPlayer("Player 2", "O");
-    gameFlow.playRound(player1, player2);
-}
-let turn = true;
-newGame();
+let gameOver = false;
+
+gameFlow.newGame();
