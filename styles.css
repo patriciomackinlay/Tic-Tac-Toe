@@ -50,7 +50,7 @@ table {
 /* END OF RESET */
 
 body {
-	background-color: rgb(193, 193, 193);
+	background-color: rgb(217, 217, 217);
 	display: grid;
 	grid-template-columns: 1fr;
 	grid-template-rows: 2fr 5fr 1fr;

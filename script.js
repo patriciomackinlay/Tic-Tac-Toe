@@ -1,3 +1,7 @@
+// INTERNAL GAMEBOARD FUNCTIONS
+// All of the markers that are set by the players are saved to boardArray. 
+// Game interactivity and logic for the GUI version was adapted from the console version, but most of it was transfered from the gameboard module to the displayController module.
+
 const gameboard = (function() {
     let boardArray = [
         "","","",
@@ -50,14 +54,13 @@ const gameboard = (function() {
     return {resetBoard, changeCell, getBoard, checkBoardForWin, checkBoardForTie}
 })();
 
-function createPlayer (name, marker) {
-    const getMarker = () => marker;
-    return {name, getMarker}
-}
+// DISPLAY CONTROLLER MODULE
+// Most of the game logic ended up here, where the display controller module generates DOM manipulation and enables user interaction with the GUI
+// The game logic ended up without needing player creation, as changing player is represented by the change in turn order
+
 
 const displayController = (function () {
 
-    const mainContainer = document.querySelector(".main-container");
     const currentBoard = document.querySelector(".board-container");
     const resetButton = document.querySelector(".reset-button");
     resetButton.addEventListener("click", () => {
@@ -115,7 +118,7 @@ const displayController = (function () {
     function fillCell(cell, marker) {
         const cellNumber = cell.id;
         if (gameboard.getBoard()[cellNumber] !== "") {
-            alert("Cell is already taken!");
+            
         } else {
             gameboard.changeCell(cellNumber, marker);
             cell.textContent = marker;
@@ -148,14 +151,14 @@ const displayController = (function () {
     return {showCurrentBoard, renderBoard, clearBoard}
 })();
 
+// GAME FLOW MODULE
+// This module has functions for setting up a new game and resetting the game for playing again
+
 const gameFlow = (function() {
-    function playerTurn(player) {
+
+    function playRound() {
         displayController.showCurrentBoard();
         displayController.renderBoard();
-    }
-
-    function playRound(player1, player2) {
-        playerTurn(player1);
     }
 
     function reset() {
@@ -166,9 +169,7 @@ const gameFlow = (function() {
     }
 
     function newGame () {
-        const player1 = createPlayer("Player 1", "X");
-        const player2 = createPlayer("Player 2", "O");
-        playRound(player1, player2);
+        playRound();
     }
 
     return {playRound, reset, newGame};
